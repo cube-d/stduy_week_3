@@ -1,4 +1,4 @@
 #다중상속이란?
 
 * 위키정의 : 어떤 클래스가 하나 이상의 상위 클래스로부터 여러 가지 행동이나 특징을 상속받을 수 있는 것을 말한다
-[다중상속](./image/MultipleInheritance.png)
+![다중상속](./image/MultipleInheritance.png)

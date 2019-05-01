@@ -416,3 +416,177 @@ public class Source8 {
 * 실행시까지 add 메소드를 실행할지 못한다고 가정해보자
 * 메소드 이름은 실행시간에 알수있다. 
 * getMethod 는 클래스에서 두개의 숫자 파라미터와 해당 이름을 가진 메소드를 찾아낸다.
+
+### 9. 새로운 객체 만들기
+
+```
+package com.cubed.reflection.source9;
+
+import java.lang.reflect.Constructor;
+
+public class Source9 {
+	public static void main(String[] args) {
+
+		try {
+
+			Class cls = Class.forName("com.cubed.reflection.data.TestObject");
+
+			Class partypes[] = new Class[2];
+
+			partypes[0] = Double.TYPE;
+			partypes[1] = Integer.TYPE;
+
+			Constructor ct = cls.getConstructor(partypes);
+
+			Object arglist[] = new Object[2];
+
+			arglist[0] = new Double(23);
+			arglist[1] = new Integer(37);
+
+			Object retobj = ct.newInstance(arglist);
+			
+			System.out.println(retobj);
+
+		} catch (Throwable e) {
+
+			System.err.println(e);
+
+		}
+
+	}
+}
+// 결과
+TestObject [name=null, age=0]
+```
+
+### 10. 필드값 바꾸기
+```
+package com.cubed.reflection.source10;
+
+import java.lang.reflect.Field;
+
+import com.cubed.reflection.data.TestObject;
+
+public class Source10 {
+	public static void main(String[] args) {
+
+		try {
+
+			Class cls = Class.forName("com.cubed.reflection.data.TestObject");
+
+			Field fld = cls.getField("d");
+
+			TestObject testField = new TestObject();
+
+			System.out.println("d = " + testField.d);
+
+			fld.setDouble(testField, 12.34);
+
+			System.out.println("d = " + testField.d);
+
+		} catch (Throwable e) {
+
+			System.err.println(e);
+
+		}
+
+	}
+}
+
+// 결과
+d = 0.0
+d = 12.34
+```
+
+### 11. 기타 예제
+
+```
+// 파일내용 (AlarmServiceList.txt)
+Call
+Msg
+
+
+// interface
+package com.cubed.reflection.ex1.service;
+
+public interface AlarmService {
+	public void alarm();
+}
+
+// 구현체
+package com.cubed.reflection.ex1.service.impl;
+
+import com.cubed.reflection.ex1.service.AlarmService;
+
+public class CallAlarmService implements AlarmService {
+
+	@Override
+	public void alarm() {
+		System.out.println("전 call alarm service 입니다.");
+		
+	}
+
+}
+기타 다른 구현체도 존재
+
+// 코드
+
+package com.cubed.reflection.ex1;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.cubed.reflection.ex1.service.AlarmService;
+
+public class AlarmServiceTest {
+	public static void main(String[] args)
+			throws IOException, ClassNotFoundException, NoSuchMethodException, SecurityException,
+			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+		final String PACKAGE_PATH = "com.cubed.reflection.ex1.service.impl.";
+		
+		List<String> serviceList = getServiceList();
+
+		for (String serviceName : serviceList) {
+
+			Class cls = Class.forName(PACKAGE_PATH + serviceName + "AlarmService");
+			Constructor ct = cls.getConstructor();
+			AlarmService alarmObj = (AlarmService) ct.newInstance();
+			alarmObj.alarm();
+
+		}
+
+	}
+
+	public static List<String> getServiceList() throws IOException {
+		List<String> serviceList = new ArrayList<>();
+
+		// 파일 객체 생성
+		File file = new File("/Users/jaehyun/Desktop/AlarmServiceList.txt");
+		// 입력 스트림 생성
+		FileReader filereader = new FileReader(file);
+		// 입력 버퍼 생성
+		BufferedReader bufReader = new BufferedReader(filereader);
+		String line = "";
+
+		while ((line = bufReader.readLine()) != null) {
+			serviceList.add(line);
+		}
+		bufReader.close();
+
+		return serviceList;
+	}
+}
+
+// 결과
+
+전 call alarm service 입니다.
+전 message alarm service 입니다.
+
+```
